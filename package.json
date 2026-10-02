@@ -1,0 +1,13 @@
+{
+  "name": "meridian-saas",
+  "private": true,
+  "description": "Meridian business workspace and reporting apps",
+  "scripts": {
+    "dev:core": "npm run dev --prefix apps/core",
+    "dev:reporting": "npm run dev --prefix apps/reporting",
+    "api:core": "npm run api --prefix apps/core",
+    "api:reporting": "npm run api --prefix apps/reporting",
+    "test": "npm test --prefix apps/core && npm test --prefix apps/reporting",
+    "build": "npm run build --prefix apps/core && npm run build --prefix apps/reporting"
+  }
+}

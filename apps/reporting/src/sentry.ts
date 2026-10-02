@@ -1,0 +1,101 @@
+import * as Sentry from "@sentry/react";
+
+const dsnPattern = /^https:\/\/[^@\s]+@[^/\s]+\/\d+$/;
+
+
+/** Production custom domains. Empty until Meridian has its own host. */
+const expectedProdHosts = new Set<string>([]);
+
+function scrubEvent(event: Sentry.ErrorEvent): Sentry.ErrorEvent | null {
+  if (event.user) {
+    delete event.user.email;
+    delete event.user.username;
+    delete event.user.ip_address;
+  }
+  if (event.request?.headers) {
+    delete event.request.headers.Authorization;
+    delete event.request.headers.cookie;
+  }
+  return event;
+}
+
+export function initSentry(app: "core" | "reporting"): boolean {
+  const dsn = import.meta.env.VITE_SENTRY_DSN?.trim();
+  if (!dsn || !dsnPattern.test(dsn)) {
+    return false;
+  }
+
+  Sentry.init({
+    dsn,
+    environment: import.meta.env.MODE,
+    release: `meridian-${app}@${import.meta.env.VITE_APP_VERSION ?? "0.1.0"}`,
+    tracesSampleRate: 0,
+    replaysSessionSampleRate: 0,
+    replaysOnErrorSampleRate: 0,
+    beforeSend: scrubEvent,
+    initialScope: {
+      tags: { app, product: "meridian" },
+    },
+  });
+
+  return true;
+}
+
+export function reportCrossAppUrlDrift(args: {
+  app: "core" | "reporting";
+  configuredUrl: string;
+  role: "reporting-target" | "core-target";
+}): void {
+  if (!import.meta.env.PROD) {
+    return;
+  }
+
+  let configuredHost = "";
+  try {
+    configuredHost = new URL(args.configuredUrl).hostname;
+  } catch {
+    Sentry.captureMessage("Invalid cross-app URL configuration", {
+      level: "error",
+      tags: { app: args.app, role: args.role, kind: "config" },
+      extra: { configuredUrl: args.configuredUrl },
+    });
+    return;
+  }
+
+  const pageHost = window.location.hostname;
+  const pageIsCustom = expectedProdHosts.has(pageHost);
+  const targetLooksStale =
+    configuredHost.endsWith(".vercel.app") ||
+    configuredHost === "localhost" ||
+    configuredHost === "127.0.0.1";
+
+  if (pageIsCustom && targetLooksStale) {
+    Sentry.captureMessage("Cross-app URL still points at non-custom host", {
+      level: "warning",
+      tags: { app: args.app, role: args.role, kind: "config-drift" },
+      extra: {
+        pageHost,
+        configuredHost,
+        configuredUrl: args.configuredUrl,
+      },
+    });
+  }
+}
+
+export function reportLegacyDeepLink(hash: string): void {
+  Sentry.captureMessage("Legacy report deep-link hit", {
+    level: "warning",
+    tags: { app: "reporting", kind: "deep-link", seam: "LIQ-9" },
+    extra: { hash },
+  });
+}
+
+/** LIQ-17: Reporting Notifications chrome is dead while Core works. */
+export function reportNotificationsFailure(surface: "header"): void {
+  Sentry.captureMessage("Reporting Notifications control failed", {
+    level: "error",
+    tags: { app: "reporting", kind: "shell-parity", seam: "LIQ-17", surface },
+  });
+}
+
+export { Sentry };
