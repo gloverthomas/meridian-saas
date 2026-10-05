@@ -25,6 +25,7 @@ import {
 import { PostHogProvider } from "@posthog/react";
 import { AiAssistant } from "./components/AiAssistant";
 import { captureProductEvent, createPosthogClient } from "./analytics";
+import { signalShareIncident } from "./demoSignal";
 import { initSentry, reportCrossAppUrlDrift, reportLegacyDeepLink, Sentry } from "./sentry";
 import "./styles.css";
 
@@ -238,6 +239,11 @@ function App() {
   const [expandedNav, setExpandedNav] = useState<string | null>("Reports");
   const [staleDeepLink, setStaleDeepLink] = useState<string | null>(null);
   const [assistantOpen, setAssistantOpen] = useState(false);
+  const [shareError, setShareError] = useState<string | null>(null);
+  const failShare = () => {
+    setShareError("Share failed in Reporting. The report link was not created.");
+    void signalShareIncident({ surface: "report" });
+  };
   const sidebarBeforeAssistantRef = useRef(false);
   const pickerRef = useRef<HTMLDivElement>(null);
   const currentPerformance = performanceReports[performanceReport];
@@ -544,6 +550,9 @@ function App() {
           </nav>
 
           <div className="breadcrumb">{breadcrumb}</div>
+          {shareError ? (
+            <p className="share-error" role="alert">{shareError}</p>
+          ) : null}
 
           {staleDeepLink ? (
             <div className="deep-link-miss" role="alert">
@@ -601,7 +610,7 @@ function App() {
                   <p>{currentPerformance.subtitle}</p>
                 </div>
                 <div className="report-actions">
-                  <button className="action-button" type="button" disabled title="Sharing is not available in this prototype">
+                  <button className="action-button" type="button" onClick={failShare}>
                     <Share2 size={16} />
                     Share
                   </button>
@@ -747,7 +756,7 @@ function App() {
                   <p>What the business owns and owes at 30 Sep 2026.</p>
                 </div>
                 <div className="report-actions">
-                  <button className="action-button" type="button" disabled title="Sharing is not available in this prototype">
+                  <button className="action-button" type="button" onClick={failShare}>
                     <Share2 size={16} />
                     Share
                   </button>
@@ -884,7 +893,7 @@ function App() {
                   <p>Debits and credits across all accounts as at 30 Sep 2026.</p>
                 </div>
                 <div className="report-actions">
-                  <button className="action-button" type="button" disabled title="Sharing is not available in this prototype">
+                  <button className="action-button" type="button" onClick={failShare}>
                     <Share2 size={16} />
                     Share
                   </button>

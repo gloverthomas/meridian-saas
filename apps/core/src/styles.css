@@ -138,22 +138,22 @@ h1 { margin-bottom: 8px; color: #111827; font-size: clamp(28px, 3vw, 36px); font
 h2 { margin-bottom: 0; color: #1f2937; font-size: 19px; font-weight: 600; letter-spacing: -.5px; }
 .subtle { margin-bottom: 0; color: #6b7280; font-size: 14px; }
 .primary-button, .secondary-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 9px; padding: 11px 15px; font-size: 13px; font-weight: 600; }
-.primary-button { border: 1px solid #0f5c56; background: #0f5c56; color: #fff; box-shadow: 0 4px 11px rgba(255,41,46,.18); }
+.primary-button { border: 1px solid #0f5c56; background: #0f5c56; color: #fff; box-shadow: 0 4px 11px rgba(15,92,86,.22); }
 .primary-button:hover { background: #0c4a45; border-color: #0c4a45; }
 .secondary-button { border: 1px solid #d9dce1; background: #fff; color: #374151; }
 .secondary-button:hover { background: #f8f8f8; }
 
-.attention-banner { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; border: 1px solid #ffd3d4; border-radius: 13px; background: #fff6f6; padding: 14px 17px; }
+.attention-banner { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; border: 1px solid #b7e4df; border-radius: 13px; background: #f3fbfa; padding: 14px 17px; }
 .attention-icon { display: grid; width: 35px; height: 35px; place-items: center; flex: 0 0 auto; border-radius: 10px; background: #0f766e; color: #fff; }
 .attention-banner div:nth-child(2) { min-width: 0; flex: 1; }
-.attention-banner strong { display: block; color: #3c2225; font-size: 13px; font-weight: 600; }
+.attention-banner strong { display: block; color: #0c3d3b; font-size: 13px; font-weight: 600; }
 .attention-banner p { margin: 3px 0 0; color: #81575a; font-size: 12px; }
 .attention-banner button, .text-button { display: inline-flex; align-items: center; gap: 7px; border: 0; background: transparent; color: #0f5c56; font-size: 12px; font-weight: 600; white-space: nowrap; }
 .attention-banner button:hover, .text-button:hover { color: #9e181c; }
-.section-hero { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; border: 1px solid #ffd3d4; border-radius: 13px; background: #fff6f6; padding: 16px 17px; }
+.section-hero { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; border: 1px solid #b7e4df; border-radius: 13px; background: #f3fbfa; padding: 16px 17px; }
 .section-hero-icon { display: grid; width: 39px; height: 39px; place-items: center; flex: 0 0 auto; border-radius: 11px; background: #0f766e; color: #fff; }
 .section-hero > div:nth-child(2) { min-width: 0; flex: 1; }
-.section-hero strong { display: block; color: #3c2225; font-size: 13px; font-weight: 600; }
+.section-hero strong { display: block; color: #0c3d3b; font-size: 13px; font-weight: 600; }
 .section-hero p { margin: 3px 0 0; color: #81575a; font-size: 12px; }
 .section-note, .table-filter { color: #59616e; font-size: 12px; font-weight: 600; }
 .table-filter { border: 1px solid #d9dce1; border-radius: 8px; background: #fff; padding: 7px 9px; }
@@ -261,7 +261,7 @@ td strong { color: #374151; font-weight: 600; }
 .invoice-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .invoice-signal { margin: 0 !important; color: #b45309 !important; font-weight: 600; }
 .modal-close { position: absolute; top: 13px; right: 13px; }
-.modal-icon { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 11px; background: #e7f5f3; color: #e02025; }
+.modal-icon { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 11px; background: #e7f5f3; color: #0f5c56; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 9px; }
 
 @media (max-width: 980px) {
@@ -421,7 +421,7 @@ td strong { color: #374151; font-weight: 600; }
 .ai-md-list li { padding-left: 2px; }
 .ai-table-wrap { overflow: auto; border: 1px solid #f0d0d0; border-radius: 10px; }
 .ai-table-wrap table { width: 100%; border-collapse: collapse; font-size: 12px; }
-.ai-table-wrap th { background: #e7f5f3; color: #7f1d1d; text-align: left; padding: 8px 10px; font-weight: 600; }
+.ai-table-wrap th { background: #e7f5f3; color: #0f5c56; text-align: left; padding: 8px 10px; font-weight: 600; }
 .ai-table-wrap td { padding: 8px 10px; border-top: 1px solid #f3f4f6; color: #374151; }
 .ai-cta {
   display: inline-flex;
@@ -534,7 +534,7 @@ td strong { color: #374151; font-weight: 600; }
   margin-bottom: 8px;
   border-radius: 8px;
   background: #e7f5f3;
-  color: #7f1d1d;
+  color: #0f5c56;
   padding: 6px 8px 6px 10px;
   font-size: 12px;
   font-weight: 600;

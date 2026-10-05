@@ -26,6 +26,19 @@ async function postSignal(body: Record<string, unknown>): Promise<{ ok: boolean;
   }
 }
 
+/** Share fails after a report is open. No ticket id: Linear creates a MER issue. */
+export async function signalShareIncident(args: {
+  surface: "report";
+}): Promise<{ ok: boolean; detail?: string }> {
+  return postSignal({
+    title: "[Hero] Share works in Core but fails in Reporting",
+    source: `report_share_${args.surface}`,
+    hash: "share",
+    detail:
+      "Core can share a report link. Reporting shows Share on an open report, then fails to create the link. Security should check that the share URL does not include the BFF bearer token.",
+  });
+}
+
 /** LIQ-17 — Notifications dead in Reporting. */
 export async function signalNotificationsIncident(args: {
   surface: "header";
