@@ -386,6 +386,7 @@ function App() {
     setSection(nextSection);
     setReportPickerOpen(false);
     setStaleDeepLink(null);
+    setShareFeedback(null);
     if (nextSection === "performance" && report) {
       setPerformanceReport(report as PerformanceReport);
     }
