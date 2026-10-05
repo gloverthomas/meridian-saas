@@ -27,6 +27,7 @@ export type AssistantMessage = {
   provider?: string;
   rationale?: string;
   relatedQuestions?: string[];
+  relatedQuestionsFailed?: boolean;
 };
 
 type ChatResponse = {
@@ -36,6 +37,7 @@ type ChatResponse = {
   provider?: string;
   rationale?: string;
   relatedQuestions?: string[];
+  relatedQuestionsError?: string;
   error?: string;
 };
 
@@ -54,6 +56,8 @@ type Props = {
   userName?: string;
   /** Fired when the intentional Reporting defect surfaces (for /signal triage). */
   onBrokenFailure?: (message: string) => void;
+  /** Fired when a reply arrives but related questions fail to load. */
+  onRelatedQuestionsFailure?: (message: string) => void;
 };
 
 function newId() {
@@ -202,6 +206,7 @@ export function AiAssistant({
   broken = false,
   userName = "Jordan",
   onBrokenFailure,
+  onRelatedQuestionsFailure,
 }: Props) {
   const titleId = useId();
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -234,6 +239,7 @@ export function AiAssistant({
     if (messages.length === 0) return WELCOME_SUGGESTIONS;
     for (let index = messages.length - 1; index >= 0; index -= 1) {
       const message = messages[index];
+      if (message.role === "assistant" && message.relatedQuestionsFailed) return [];
       if (message.role === "assistant" && message.relatedQuestions?.length) {
         return message.relatedQuestions;
       }
@@ -275,6 +281,7 @@ export function AiAssistant({
         if (!res.ok) {
           throw new Error(data.error ?? `assistant_http_${res.status}`);
         }
+        const relatedFailed = data.relatedQuestionsError === "related_questions_unavailable";
         setMessages((prev) => [
           ...prev,
           {
@@ -294,16 +301,23 @@ export function AiAssistant({
               typeof data.rationale === "string" && data.rationale.trim()
                 ? data.rationale.trim()
                 : "Answered from Harbour Studio demo books for this page context.",
-            relatedQuestions: normalizeRelated(data.relatedQuestions),
+            relatedQuestions: relatedFailed ? [] : normalizeRelated(data.relatedQuestions),
+            relatedQuestionsFailed: relatedFailed,
           },
         ]);
+        if (relatedFailed) {
+          const failure =
+            "Related questions failed to load in Reporting. The reply arrived, but the follow-up questions Core shows were not returned.";
+          setError(failure);
+          onRelatedQuestionsFailure?.(failure);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "assistant_failed");
       } finally {
         setBusy(false);
       }
     },
-    [busy, broken, context, messages, onBrokenFailure],
+    [busy, broken, context, messages, onBrokenFailure, onRelatedQuestionsFailure],
   );
 
   if (!open) return null;

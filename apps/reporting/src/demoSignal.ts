@@ -38,6 +38,19 @@ export async function signalNotificationsIncident(args: {
   });
 }
 
+/** Related questions fail after a successful Reporting reply. No ticket id: Linear creates a MER issue. */
+export async function signalRelatedQuestionsIncident(args: {
+  surface: "header";
+}): Promise<{ ok: boolean; detail?: string }> {
+  return postSignal({
+    title: "[Hero] Related questions load in Core but fail in Reporting",
+    source: `assistant_related_${args.surface}`,
+    hash: "ai-assistant",
+    detail:
+      "Core shows follow-up questions after an assistant reply. Reporting returns the reply, then related questions fail to load (related_questions_unavailable).",
+  });
+}
+
 /** LIQ-24 — AI Assistant rail duplicated but BFF never wired in Reporting. */
 export async function signalAssistantIncident(args: {
   surface: "header";

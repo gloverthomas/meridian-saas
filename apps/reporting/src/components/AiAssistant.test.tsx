@@ -94,6 +94,28 @@ describe("AiAssistant", () => {
     expect(within(related).getByRole("button", { name: /What drove the increase\?/i })).toBeInTheDocument();
   });
 
+  it("shows the reply, then reports that related questions failed to load", async () => {
+    const user = userEvent.setup();
+    const onRelatedQuestionsFailure = vi.fn();
+    vi.stubGlobal(
+      "fetch",
+      mockChatOk({ relatedQuestions: [], relatedQuestionsError: "related_questions_unavailable" }),
+    );
+
+    render(
+      <AiAssistant open onClose={() => undefined} onRelatedQuestionsFailure={onRelatedQuestionsFailure} />,
+    );
+    await user.click(
+      screen.getByRole("button", { name: /How does this quarter compare to last\?/i }),
+    );
+
+    expect(await screen.findByText(/Income is up versus last quarter/i)).toBeInTheDocument();
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent(/Related questions failed to load/i);
+    expect(onRelatedQuestionsFailure).toHaveBeenCalledWith(expect.stringMatching(/Related questions failed to load/i));
+    expect(screen.queryByLabelText(/Related questions/i)).not.toBeInTheDocument();
+  });
+
   it("shows the intentional BFF miss and notifies triage when broken", async () => {
     const user = userEvent.setup();
     const fetchMock = vi.fn();
