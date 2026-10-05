@@ -25,16 +25,14 @@ import {
 import { PostHogProvider } from "@posthog/react";
 import { AiAssistant } from "./components/AiAssistant";
 import { captureProductEvent, createPosthogClient } from "./analytics";
-import { signalShareIncident } from "./demoSignal";
+import { reportRouteByHash, reportHashFor, type OpenReportName, type PerformanceReport, type Section, type StatementReport } from "./reportRoutes";
+import { copyReportShareLink } from "./shareReportLink";
 import { initSentry, reportCrossAppUrlDrift, reportLegacyDeepLink, Sentry } from "./sentry";
 import "./styles.css";
 
 initSentry("reporting");
 const posthogClient = createPosthogClient("reporting");
 
-type Section = "all" | "performance" | "statements";
-type PerformanceReport = "Profit & Loss" | "Cash flow" | "Revenue summary";
-type StatementReport = "Balance sheet" | "Trial balance";
 type Organisation = { id: string; name: string; role: string };
 type ProfitAndLoss = { netProfit: number };
 type TableRow = {
@@ -207,15 +205,6 @@ const workspaceNav = [
   { label: "Reports", icon: FileBarChart2, current: true },
 ] as const;
 
-const reportRouteByHash: Record<string, { section: Section; report?: PerformanceReport | StatementReport }> = {
-  "profit-loss": { section: "performance", report: "Profit & Loss" },
-  "cash-flow": { section: "performance", report: "Cash flow" },
-  "revenue-summary": { section: "performance", report: "Revenue summary" },
-  "balance-sheet": { section: "statements", report: "Balance sheet" },
-  "trial-balance": { section: "statements", report: "Trial balance" },
-  all: { section: "all" },
-};
-
 /** Legacy Core deep link still used by meridian-core (LIQ-9). */
 const legacySalesSummaryHash = "sales-summary";
 
@@ -239,10 +228,23 @@ function App() {
   const [expandedNav, setExpandedNav] = useState<string | null>("Reports");
   const [staleDeepLink, setStaleDeepLink] = useState<string | null>(null);
   const [assistantOpen, setAssistantOpen] = useState(false);
-  const [shareError, setShareError] = useState<string | null>(null);
-  const failShare = () => {
-    setShareError("Share failed in Reporting. The report link was not created.");
-    void signalShareIncident({ surface: "report" });
+  const [shareFeedback, setShareFeedback] = useState<{ kind: "error" | "success"; text: string } | null>(null);
+  const handleShare = () => {
+    void (async () => {
+      const result = await copyReportShareLink(window.location, {
+        section,
+        performanceReport,
+        statementReport,
+      });
+      if (result.ok) {
+        setShareFeedback({ kind: "success", text: "Report link copied to clipboard." });
+        return;
+      }
+      setShareFeedback({
+        kind: "error",
+        text: result.error || "Could not copy the report link.",
+      });
+    })();
   };
   const sidebarBeforeAssistantRef = useRef(false);
   const pickerRef = useRef<HTMLDivElement>(null);
@@ -380,7 +382,7 @@ function App() {
     }
   }, [sidebarCollapsed]);
 
-  const openReport = (nextSection: Section, report?: PerformanceReport | StatementReport) => {
+  const openReport = (nextSection: Section, report?: OpenReportName) => {
     setSection(nextSection);
     setReportPickerOpen(false);
     setStaleDeepLink(null);
@@ -390,20 +392,7 @@ function App() {
     if (nextSection === "statements" && report) {
       setStatementReport(report as StatementReport);
     }
-    const hash =
-      nextSection === "all"
-        ? "all"
-        : report === "Profit & Loss"
-          ? "profit-loss"
-          : report === "Cash flow"
-            ? "cash-flow"
-            : report === "Revenue summary"
-              ? "revenue-summary"
-              : report === "Balance sheet"
-                ? "balance-sheet"
-                : report === "Trial balance"
-                  ? "trial-balance"
-                  : nextSection;
+    const hash = reportHashFor(nextSection, report);
     window.history.replaceState({}, "", `${window.location.pathname}${window.location.search}#${hash}`);
     captureProductEvent(posthogClient, "report_opened", {
       source: "reporting",
@@ -550,8 +539,14 @@ function App() {
           </nav>
 
           <div className="breadcrumb">{breadcrumb}</div>
-          {shareError ? (
-            <p className="share-error" role="alert">{shareError}</p>
+          {shareFeedback ? (
+            <p
+              className={shareFeedback.kind === "error" ? "share-error" : "share-success"}
+              role="status"
+              aria-live="polite"
+            >
+              {shareFeedback.text}
+            </p>
           ) : null}
 
           {staleDeepLink ? (
@@ -610,7 +605,7 @@ function App() {
                   <p>{currentPerformance.subtitle}</p>
                 </div>
                 <div className="report-actions">
-                  <button className="action-button" type="button" onClick={failShare}>
+                  <button className="action-button" type="button" onClick={handleShare}>
                     <Share2 size={16} />
                     Share
                   </button>
@@ -756,7 +751,7 @@ function App() {
                   <p>What the business owns and owes at 30 Sep 2026.</p>
                 </div>
                 <div className="report-actions">
-                  <button className="action-button" type="button" onClick={failShare}>
+                  <button className="action-button" type="button" onClick={handleShare}>
                     <Share2 size={16} />
                     Share
                   </button>
@@ -893,7 +888,7 @@ function App() {
                   <p>Debits and credits across all accounts as at 30 Sep 2026.</p>
                 </div>
                 <div className="report-actions">
-                  <button className="action-button" type="button" onClick={failShare}>
+                  <button className="action-button" type="button" onClick={handleShare}>
                     <Share2 size={16} />
                     Share
                   </button>
