@@ -20,7 +20,7 @@ npm run dev:reporting
 
 Core is [http://localhost:3000](http://localhost:3000). Reports is [http://localhost:3001](http://localhost:3001). The core BFF is on port 4000 and the reporting BFF is on port 4001. The Vite dev servers inject the token, so the browser never sees it.
 
-`Reports` in the core nav opens the reporting app. The assistant answers in core. In reporting, the same control is the known gap: it signals the workflow service and does not answer.
+`Reports` in the core nav opens the reporting app. The AI Assistant uses the same `/api/v1/assistant/chat` route in both apps (local BFF or Vercel serverless).
 
 ## Checks
 

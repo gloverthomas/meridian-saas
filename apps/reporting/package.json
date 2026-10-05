@@ -12,7 +12,8 @@
     "test:unit": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "test:e2e:proof": "playwright test e2e/help-proof.spec.ts"
+    "test:e2e:proof": "playwright test e2e/help-proof.spec.ts",
+    "test:e2e:mer-1": "playwright test e2e/mer-1-proof.spec.ts"
   },
 
   "dependencies": {

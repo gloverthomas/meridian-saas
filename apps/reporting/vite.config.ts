@@ -1,10 +1,12 @@
 /// <reference types="vitest/config" />
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 
-const bffToken = process.env.MERIDIAN_BFF_DEMO_TOKEN;
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), "");
+  const bffToken = env.MERIDIAN_BFF_DEMO_TOKEN || process.env.MERIDIAN_BFF_DEMO_TOKEN;
 
-export default defineConfig({
+  return {
   plugins: [react()],
   server: {
     port: 3001,
@@ -22,4 +24,5 @@ export default defineConfig({
     include: ["src/**/*.test.{ts,tsx}"],
     css: false,
   },
+};
 });

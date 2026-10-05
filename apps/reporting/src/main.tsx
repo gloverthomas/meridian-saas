@@ -25,7 +25,6 @@ import {
 import { PostHogProvider } from "@posthog/react";
 import { AiAssistant } from "./components/AiAssistant";
 import { captureProductEvent, createPosthogClient } from "./analytics";
-import { signalAssistantIncident } from "./demoSignal";
 import { initSentry, reportCrossAppUrlDrift, reportLegacyDeepLink, Sentry } from "./sentry";
 import "./styles.css";
 
@@ -975,10 +974,6 @@ function App() {
           onClose={closeAssistant}
           contextLabel="Dashboard"
           userName="Jordan"
-          broken
-          onBrokenFailure={() => {
-            void signalAssistantIncident({ surface: "header" });
-          }}
         />
       </div>
         </div>
